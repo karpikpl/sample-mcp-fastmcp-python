@@ -109,6 +109,10 @@ async def test_add_tool():
 - `fastmcp==2.10.6`
 - `fastapi>=0.116.1`
 
+## MCP Inspector
+
+To test with MCP inspector, run it with `npx`: `npx @modelcontextprotocol/inspector`
+
 ## 📄 License
 
 MIT License (add your license file if needed)
