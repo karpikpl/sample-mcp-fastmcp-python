@@ -20,18 +20,21 @@ Main usage:
 @dataclass
 class WeatherDescription:
     """Weather condition description like 'Sunny', 'Cloudy', 'Rainy'"""
+
     value: str  # Human-readable weather description
 
 
 @dataclass
 class WeatherIcon:
     """Weather icon URL for visual representation"""
+
     value: str  # URL to weather icon image
 
 
 @dataclass
 class CurrentCondition:
     """Current weather conditions at the location"""
+
     FeelsLikeC: str  # Feels like temperature in Celsius
     FeelsLikeF: str  # Feels like temperature in Fahrenheit
     cloudcover: str  # Cloud coverage percentage (0-100)
@@ -59,30 +62,35 @@ class CurrentCondition:
 @dataclass
 class AreaName:
     """Geographic area name"""
+
     value: str  # Name of the area/city (e.g., 'London', 'New York')
 
 
 @dataclass
 class Country:
     """Country information"""
+
     value: str  # Country name (e.g., 'United Kingdom', 'United States')
 
 
 @dataclass
 class Region:
     """Regional/state information"""
+
     value: str  # Region, state, or province name
 
 
 @dataclass
 class WeatherUrl:
     """URL for detailed weather information"""
+
     value: str  # URL to weather service page for this location
 
 
 @dataclass
 class NearestArea:
     """Information about the nearest geographic location"""
+
     areaName: List[AreaName]  # List of area names (usually one item)
     country: List[Country]  # List of country info (usually one item)
     latitude: str  # Latitude coordinate as decimal degrees
@@ -95,6 +103,7 @@ class NearestArea:
 @dataclass
 class Request:
     """Weather API request information"""
+
     query: str  # Original query (e.g., 'London' or 'Lat 51.51 and Lon -0.13')
     type: str  # Query type ('City', 'LatLon', etc.)
 
@@ -102,6 +111,7 @@ class Request:
 @dataclass
 class Astronomy:
     """Astronomical information for the day"""
+
     moon_illumination: str  # Moon illumination percentage (0-100)
     moon_phase: str  # Moon phase name (e.g., 'Waxing Gibbous', 'Full Moon')
     moonrise: str  # Moonrise time (e.g., '07:44 PM')
@@ -113,6 +123,7 @@ class Astronomy:
 @dataclass
 class HourlyWeather:
     """Detailed weather information for a specific hour"""
+
     DewPointC: str  # Dew point in Celsius
     DewPointF: str  # Dew point in Fahrenheit
     FeelsLikeC: str  # Feels like temperature in Celsius
@@ -159,11 +170,14 @@ class HourlyWeather:
 @dataclass
 class DailyWeather:
     """Weather forecast for a single day"""
+
     astronomy: List[Astronomy]  # Astronomical data (sunrise, sunset, moon phases)
     avgtempC: str  # Average temperature for the day in Celsius
     avgtempF: str  # Average temperature for the day in Fahrenheit
     date: str  # Date in YYYY-MM-DD format
-    hourly: List[HourlyWeather]  # Hourly weather data for the day (usually 8 entries, every 3 hours)
+    hourly: List[
+        HourlyWeather
+    ]  # Hourly weather data for the day (usually 8 entries, every 3 hours)
     maxtempC: str  # Maximum temperature for the day in Celsius
     maxtempF: str  # Maximum temperature for the day in Fahrenheit
     mintempC: str  # Minimum temperature for the day in Celsius
@@ -176,7 +190,10 @@ class DailyWeather:
 @dataclass
 class WeatherData:
     """Complete weather API response containing current conditions and forecasts"""
-    current_condition: List[CurrentCondition]  # Current weather conditions (usually one item)
+
+    current_condition: List[
+        CurrentCondition
+    ]  # Current weather conditions (usually one item)
     nearest_area: List[NearestArea]  # Nearest location information (usually one item)
     request: List[Request]  # Original request information (usually one item)
     weather: List[DailyWeather]  # Daily weather forecasts (usually 3-7 days)
@@ -215,7 +232,7 @@ def dict_to_current_condition(data: dict) -> CurrentCondition:
         winddir16Point=data["winddir16Point"],
         winddirDegree=data["winddirDegree"],
         windspeedKmph=data["windspeedKmph"],
-        windspeedMiles=data["windspeedMiles"]
+        windspeedMiles=data["windspeedMiles"],
     )
 
 
@@ -243,15 +260,12 @@ def dict_to_nearest_area(data: dict) -> NearestArea:
         longitude=data["longitude"],
         population=data["population"],
         region=[dict_to_region(region) for region in data["region"]],
-        weatherUrl=[dict_to_weather_url(url) for url in data["weatherUrl"]]
+        weatherUrl=[dict_to_weather_url(url) for url in data["weatherUrl"]],
     )
 
 
 def dict_to_request(data: dict) -> Request:
-    return Request(
-        query=data["query"],
-        type=data["type"]
-    )
+    return Request(query=data["query"], type=data["type"])
 
 
 def dict_to_astronomy(data: dict) -> Astronomy:
@@ -261,7 +275,7 @@ def dict_to_astronomy(data: dict) -> Astronomy:
         moonrise=data["moonrise"],
         moonset=data["moonset"],
         sunrise=data["sunrise"],
-        sunset=data["sunset"]
+        sunset=data["sunset"],
     )
 
 
@@ -307,7 +321,7 @@ def dict_to_hourly_weather(data: dict) -> HourlyWeather:
         winddir16Point=data["winddir16Point"],
         winddirDegree=data["winddirDegree"],
         windspeedKmph=data["windspeedKmph"],
-        windspeedMiles=data["windspeedMiles"]
+        windspeedMiles=data["windspeedMiles"],
     )
 
 
@@ -324,17 +338,19 @@ def dict_to_daily_weather(data: dict) -> DailyWeather:
         mintempF=data["mintempF"],
         sunHour=data["sunHour"],
         totalSnow_cm=data["totalSnow_cm"],
-        uvIndex=data["uvIndex"]
+        uvIndex=data["uvIndex"],
     )
 
 
 def dict_to_weather_data(data: dict) -> WeatherData:
     """Convert a weather API response dictionary to WeatherData dataclass."""
     return WeatherData(
-        current_condition=[dict_to_current_condition(cc) for cc in data["current_condition"]],
+        current_condition=[
+            dict_to_current_condition(cc) for cc in data["current_condition"]
+        ],
         nearest_area=[dict_to_nearest_area(area) for area in data["nearest_area"]],
         request=[dict_to_request(req) for req in data["request"]],
-        weather=[dict_to_daily_weather(day) for day in data["weather"]]
+        weather=[dict_to_daily_weather(day) for day in data["weather"]],
     )
 
 
@@ -342,12 +358,47 @@ def dict_to_weather_data(data: dict) -> WeatherData:
 if __name__ == "__main__":
     # Example of how to use with your weather data
     sample_data = {
-        'current_condition': [{'FeelsLikeC': '23', 'FeelsLikeF': '74', 'cloudcover': '0', 'humidity': '36', 'localObsDateTime': '2025-08-06 02:58 PM', 'observation_time': '01:58 PM', 'precipInches': '0.0', 'precipMM': '0.0', 'pressure': '1022', 'pressureInches': '30', 'temp_C': '23', 'temp_F': '73', 'uvIndex': '5', 'visibility': '10', 'visibilityMiles': '6', 'weatherCode': '113', 'weatherDesc': [{'value': 'Sunny'}], 'weatherIconUrl': [{'value': ''}], 'winddir16Point': 'WSW', 'winddirDegree': '241', 'windspeedKmph': '9', 'windspeedMiles': '6'}],
-        'nearest_area': [{'areaName': [{'value': 'London'}], 'country': [{'value': 'United Kingdom'}], 'latitude': '51.517', 'longitude': '-0.106', 'population': '7421228', 'region': [{'value': 'City of London Greater London'}], 'weatherUrl': [{'value': ''}]}],
-        'request': [{'query': 'Lat 51.51 and Lon -0.13', 'type': 'LatLon'}],
-        'weather': []  # Simplified for example
+        "current_condition": [
+            {
+                "FeelsLikeC": "23",
+                "FeelsLikeF": "74",
+                "cloudcover": "0",
+                "humidity": "36",
+                "localObsDateTime": "2025-08-06 02:58 PM",
+                "observation_time": "01:58 PM",
+                "precipInches": "0.0",
+                "precipMM": "0.0",
+                "pressure": "1022",
+                "pressureInches": "30",
+                "temp_C": "23",
+                "temp_F": "73",
+                "uvIndex": "5",
+                "visibility": "10",
+                "visibilityMiles": "6",
+                "weatherCode": "113",
+                "weatherDesc": [{"value": "Sunny"}],
+                "weatherIconUrl": [{"value": ""}],
+                "winddir16Point": "WSW",
+                "winddirDegree": "241",
+                "windspeedKmph": "9",
+                "windspeedMiles": "6",
+            }
+        ],
+        "nearest_area": [
+            {
+                "areaName": [{"value": "London"}],
+                "country": [{"value": "United Kingdom"}],
+                "latitude": "51.517",
+                "longitude": "-0.106",
+                "population": "7421228",
+                "region": [{"value": "City of London Greater London"}],
+                "weatherUrl": [{"value": ""}],
+            }
+        ],
+        "request": [{"query": "Lat 51.51 and Lon -0.13", "type": "LatLon"}],
+        "weather": [],  # Simplified for example
     }
-    
+
     # Convert to dataclass
     weather = dict_to_weather_data(sample_data)
     print(f"Current temperature: {weather.current_condition[0].temp_C}°C")
