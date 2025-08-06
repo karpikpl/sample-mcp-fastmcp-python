@@ -7,6 +7,9 @@ from fastmcp import FastMCP
 
 # Add FastAPI exception handler for HTTP 409 Conflict
 from fastmcp.server.middleware import Middleware, MiddlewareContext
+import httpx
+
+from weather_models import WeatherData, dict_to_weather_data
 
 class LoggingMiddleware(Middleware):
     """Middleware that logs all MCP operations."""
@@ -23,6 +26,8 @@ class LoggingMiddleware(Middleware):
 logger = fastmcp.utilities.logging.get_logger("mcp_server")
 logger.setLevel(logging.DEBUG)
 logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.DEBUG)
+
+run_stateless = os.getenv('STATELESS', 'true').lower() in ('true', '1', 'yes')
 
 mcp = FastMCP("MCP Server")
 mcp.add_middleware(LoggingMiddleware())
@@ -60,6 +65,28 @@ def subtract(a: int, b: int) -> int:
     logger.debug(f"[subtract] Computed result: {result}")
     return result
 
+@mcp.tool()
+async def get_weather(location: str) -> WeatherData:
+    """Use this to get the weather for a given location.
+    Args:
+        location: The location to get the weather for. e.g., "London", "New York".
+    Returns:
+        A dictionary containing the weather data.
+    """
+    # Make request to wttr.in
+    wttrUrl = f"https://wttr.in/{location}?format=j1"
+    logger.info(f"[get_weather] Fetching weather for {location} from {wttrUrl}")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(wttrUrl)
+            weather_data = response.json()
+        logger.debug(f"[get_weather] Received weather data: {weather_data}")
+        return dict_to_weather_data(weather_data)
+    except httpx.HTTPStatusError as e:
+        logger.error(f"[get_weather] HTTP error occurred: {e.response.status_code} - {e.response.text}")
+        raise fastmcp.exceptions.MCPError(f"Failed to fetch weather data: {e.response.status_code} - {e.response.text}")
+    
+
 if __name__ == "__main__":
     port = os.getenv('PORT', 3000)
     logger.info(f"🚀 MCP server starting on host 0.0.0.0, port {port}")
@@ -70,6 +97,7 @@ if __name__ == "__main__":
                 transport="streamable-http",
                 host="0.0.0.0",
                 port=port,
+                stateless_http=run_stateless
             )
         )
         logger.info("✅ MCP server started successfully.")
